@@ -10,7 +10,9 @@ import imutils
 import time
 import cv2
 import os.path
-from libs.fileAccess import *
+import fileaccess as fa
+import datetime
+import time
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -22,6 +24,11 @@ ap.add_argument("-m", "--model", required=True,
 ap.add_argument("-c", "--confidence", type=float, default=0.2,
 	help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
+
+filelist = [f for f in os.listdir("images") if f.endswith(".jpg")]
+
+for f in filelist:
+    os.remove(os.path.join("images", f))
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect, then generate a set of bounding box colors for each class
@@ -39,7 +46,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 # initialize the video stream, allow the cammera sensor to warmup,
 # and initialize the FPS counter
 print("[INFO] starting video stream...")
-vs = VideoStream(src=1).start()
+vs = VideoStream(src=2).start()
 time.sleep(2.0)
 fps = FPS().start()
 
@@ -83,6 +90,8 @@ while True:
 
                         if CLASSES[idx] == "person":
                             length = length + 1
+                            fileName = datetime.datetime.now()       
+                            cv2.imwrite("images/%s.jpg" % (fileName.strftime("%d_%m_%Y_%H_%M_%S")) , frame)
 
                         cv2.rectangle(frame, (startX, startY), (endX, endY),
 				COLORS[idx], 2)
@@ -95,10 +104,9 @@ while True:
 	cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
 
-
         print(length)
-        libs.fileAccess.createNewFile("/response.txt",length)
-
+        fa.createNewFile("response.txt",length)
+        
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break

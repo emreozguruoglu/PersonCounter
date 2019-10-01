@@ -3,7 +3,6 @@ import pathlib
 
 # Check file/folder existence by os.path.exists method.
 def checkFileExistByOSPath(file_path):
-
     ret = False
     # If this file object exist.
     if(os.path.exists(file_path)):
